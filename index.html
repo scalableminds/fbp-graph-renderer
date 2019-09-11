@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    <title>Graph Renderer</title>
+
+    <!-- Browserify Libraries -->
+    <script src="./Graph Editor Demo_files/vendor.js"></script>
+    <script src="./Graph Editor Demo_files/the-graph.js"></script>
+
+    <link rel="stylesheet" href="./Graph Editor Demo_files/the-graph-dark.css">
+    <link rel="stylesheet" href="./Graph Editor Demo_files/the-graph-light.css">
+
+    <!-- Fonts -->
+    <link rel="stylesheet" href="./Graph Editor Demo_files/font-awesome.min.css">
+    <link href="./Graph Editor Demo_files/css" rel="stylesheet" type="text/css">
+    <style>
+      @font-face {
+        /* we want the svg version */
+        font-family: 'FontAwesomeSVG';
+        src: url('../node_modules/font-awesome/fonts/fontawesome-webfont.svg?v=4.0.3#fontawesomeregular') format('svg'),
+          url('../node_modules/font-awesome/fonts/fontawesome-webfont.eot?#iefix&v=4.0.3') format('embedded-opentype'),
+          url('../node_modules/font-awesome/fonts/fontawesome-webfont.woff?v=4.0.3') format('woff'),
+          url('../node_modules/font-awesome/fonts/fontawesome-webfont.ttf?v=4.0.3') format('truetype');
+        font-weight: normal;
+        font-style: normal;
+      }
+    </style>
+
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0, user-scalable=no">
+
+    <style>
+      html, body {
+        width: 100%;
+        height: 100%;
+      }
+      body {
+        background-color: hsl(189, 47%, 6%);
+        font-family: "SourceCodePro",Helvetica,Arial,sans-serif;
+        overflow: hidden;
+      }
+      #editor {
+        background-color: transparent;
+        position: absolute;
+        top: 0;
+        left: 0;
+      }
+      #buttons {
+        position: absolute;
+        top: 0;
+        left: 0;
+      }
+    </style>
+
+  </head>
+  <body>
+
+    <div id="editor" class="the-graph-dark"><div data-reactroot="" class="the-graph-app normal" name="app" style="width: 1920px; height: 936px;"><canvas width="1920" height="936" class="app-canvas"></canvas><svg width="1920" height="936" class="app-svg" style="touch-action: none; user-select: none; -webkit-user-drag: none; -webkit-tap-highlight-color: rgba(0, 0, 0, 0);"><g transform="matrix(1,0,0,1,0,0)" class="view"><g class="graph"><g class="groups"></g><g class="edges"></g><g class="iips"></g><g class="nodes"></g><g class="ex-inports"></g><g class="ex-outports"></g></g></g><g class="tooltip hidden" transform="translate(0,0)"><rect width="0" class="tooltip-bg" x="0" y="-7" rx="3" ry="3" height="16"></rect><text class="tooltip-label"></text></g><g class="context"></g></svg></div></div>
+
+    <div id="buttons">
+      <button id="clear">Load From JSON</button>
+    </div>
+    
+    <script type="text/javascript">
+      "use strict";
+      var fbpGraph = window.TheGraph.fbpGraph;
+
+      // The graph editor
+      var editor = document.getElementById('editor');
+
+      var library = {}
+
+      // Load empty graph
+      var graph = new fbpGraph.Graph();
+
+      function renderEditor() {
+        var props = {
+            readonly: false,
+            height: window.innerHeight,
+            width: window.innerWidth,
+            graph: graph,
+            library: library,
+        };
+        var editor = document.getElementById('editor');
+        editor.width = props.width;
+        editor.height = props.height;
+        var element = React.createElement(TheGraph.App, props);
+        ReactDOM.render(element, editor);
+      }
+      graph.on('endTransaction', renderEditor); // graph changed
+      window.addEventListener("resize", renderEditor);
+
+      function setupButtons() {
+        document.getElementById("clear").addEventListener("click", function () {
+          var graphAndLibraryJSON = JSON.parse(prompt("input json:"))
+          var graphJSON = graphAndLibraryJSON.graph;
+          library = graphAndLibraryJSON.library;
+          console.log("library", library)
+
+          fbpGraph.graph.loadJSON(graphJSON, (err, _graph) => {
+            graph = _graph;
+            renderEditor();
+          });
+        });
+      }
+      setupButtons()
+
+    </script>
+  
+
+</body></html>
